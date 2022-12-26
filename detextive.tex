@@ -1,0 +1,897 @@
+%! TEX program = xelatex
+\documentclass[a4paper]{article}
+
+\usepackage{kotex}
+\usepackage{microtype}
+\usepackage{amssymb,amsmath,mathtools} % Before unicode-math
+\usepackage[math-style=TeX,bold-style=TeX]{unicode-math}
+
+% command*
+\usepackage{suffix}
+
+% Envs
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily,
+  mathescape
+}
+
+\usepackage{tabularray}
+\usepackage{hyperref}
+
+% Font settings
+% \usepackage{stackrel}
+% \usepackage{stmaryrd}
+\setmainfont{Libertinus Serif}
+\setsansfont{Libertinus Sans}[Scale=MatchLowercase]
+\setmonofont{JuliaMono}[Scale=MatchLowercase]
+
+\setmathfont{Libertinus Math} % Before set*hangulfont
+\setmathfont{TeX Gyre Pagella Math}[range={\lbrace,\rbrace},Scale=1.1]
+\setmathfont{TeX Gyre Pagella Math}[range={\mathbb,\mathfrak},Scale=MatchUppercase]
+\setmathfont{Asana Math}[range={\checkmark,\bigtriangledown,\cup,\sqcup,\cap,\sqcap,\subseteq,\supseteq,\sqsubseteq,\sqsupseteq,\subset,\supset,\sqsubset,\sqsupset,\in,\ni,\notin},Scale=MatchUppercase]
+
+\setmainhangulfont{Noto Serif CJK KR}
+\setsanshangulfont[BoldFont={* Bold}]{KoPubWorldDotum_Pro}
+\setmonohangulfont{D2Coding}
+
+% Get double angle brackets (\llangle and \rrangle)
+\makeatletter
+\DeclareFontFamily{OMX}{MnSymbolE}{}
+\DeclareSymbolFont{MnLargeSymbols}{OMX}{MnSymbolE}{m}{n}
+\SetSymbolFont{MnLargeSymbols}{bold}{OMX}{MnSymbolE}{b}{n}
+\DeclareFontShape{OMX}{MnSymbolE}{m}{n}{
+    <-6>  MnSymbolE5
+   <6-7>  MnSymbolE6
+   <7-8>  MnSymbolE7
+   <8-9>  MnSymbolE8
+   <9-10> MnSymbolE9
+  <10-12> MnSymbolE10
+  <12->   MnSymbolE12
+}{}
+\DeclareFontShape{OMX}{MnSymbolE}{b}{n}{
+    <-6>  MnSymbolE-Bold5
+   <6-7>  MnSymbolE-Bold6
+   <7-8>  MnSymbolE-Bold7
+   <8-9>  MnSymbolE-Bold8
+   <9-10> MnSymbolE-Bold9
+  <10-12> MnSymbolE-Bold10
+  <12->   MnSymbolE-Bold12
+}{}
+
+\let\llangle\@undefined
+\let\rrangle\@undefined
+\DeclareMathDelimiter{\llangle}{\mathopen}%
+                     {MnLargeSymbols}{'164}{MnLargeSymbols}{'164}
+\DeclareMathDelimiter{\rrangle}{\mathclose}%
+                     {MnLargeSymbols}{'171}{MnLargeSymbols}{'171}
+\makeatother
+
+\usepackage{newunicodechar}
+\newfontfamily{\fallbackfonta}{EB Garamond}
+\DeclareTextFontCommand{\textfallbacka}{\fallbackfonta}
+\newunicodechar{⩴}{\textfallbacka{⩴}}
+
+% Syntax & Semantics
+\usepackage{simplebnf}[2022/05/08]
+\RenewDocumentCommand\SimpleBNFDefEq{}{\ensuremath{⩴}}
+
+\usepackage{galois}
+
+% Custom macros for this doc
+\newcommand*{\tex}{τϵχ}
+
+\newcommand*{\power}[1]{\wp(#1)}
+\WithSuffix\newcommand\power*[1]{\breve{\wp}(#1)}
+\newcommand*{\dom}[1]{\mathbb{#1}}
+\WithSuffix\newcommand\dom*[1]{\mathbb{#1}^\sharp}
+% \def\dom#1{%
+%   \if\Sigma#1
+%     \mathbb{\sum}%
+%   \else
+%     \mathbb{#1}%
+%   \fi%
+% }
+
+\newcommand*{\finarrow}{\stackrel{\text{fin}}{\rightarrow}}
+
+\newcommand*{\state}[8]{\langle #1, #2, #3, #4, #5, #6, #7, #8 \rangle}
+\WithSuffix\newcommand\state*{\state{\ell}{d}{t}{m}{\sigma}{\kappa}{\phi}{f}}
+
+\newcommand*{\absstate}[8]{\langle #1, #2^\sharp, #3^\sharp, #4^\sharp, #5^\sharp, #6^\sharp, #7^\sharp, #8^\sharp \rangle}
+\WithSuffix\newcommand\absstate*{\absstate{\ell}{D}{T}{M}{\sigma}{\kappa}{\phi}{F}}
+
+\newcommand*{\partstate}[7]{\langle #1^\sharp, #2^\sharp, #3^\sharp, #4^\sharp, #5^\sharp, #6^\sharp, #7^\sharp \rangle}
+\WithSuffix\newcommand\partstate*{\partstate{D}{T}{M}{\sigma}{\kappa}{\phi}{F}}
+
+\newcommand*{\mode}[1]{\mathfrak{#1}}
+
+\newcommand*{\lfp}{\mathsf{lfp}}
+\newcommand*{\Step}{\mathsf{Step}}
+\newcommand*{\Next}{\mathsf{next}}
+\newcommand*{\NextTrue}{\mathsf{nextTrue}}
+\newcommand*{\NextFalse}{\mathsf{nextFalse}}
+\newcommand*{\Label}{\mathsf{label}}
+
+\newcommand*{\body}{\mathsf{body}}
+\newcommand*{\Arg}{\mathsf{arg}}
+
+\newcommand*{\tarrow}{\hookrightarrow}
+\WithSuffix\newcommand\tarrow*{\hookrightarrow^\sharp}
+
+\newcommand*{\weakhsw}{\mathsf{weakHSwitch}}
+\newcommand*{\fix}[3]{\mathsf{fix}(#1, #2, #3)}
+\newcommand*{\update}{\mathsf{update}}
+\newcommand*{\Advance}{\mathsf{advance}}
+\newcommand*{\eval}{\mathsf{eval}}
+\newcommand*{\fetch}{\mathsf{fetch}}
+\newcommand*{\filter}{\mathsf{filter}}
+\newcommand*{\pushMode}{\mathsf{pushMode}}
+\newcommand*{\popMode}{\mathsf{popMode}}
+\newcommand*{\bind}{\mathsf{bind}}
+\newcommand*{\newEnv}{\mathsf{newEnv}}
+\newcommand*{\pushCtx}{\mathsf{pushCtx}}
+\newcommand*{\popCtx}{\mathsf{popCtx}}
+\newcommand*{\tick}{\mathsf{tick}}
+
+\WithSuffix\newcommand\weakhsw*{\mathsf{weakHSwitch}^\sharp}
+\WithSuffix\newcommand\fix*[3]{\mathsf{fix}^\sharp(#1, #2, #3)}
+\WithSuffix\newcommand\update*{\mathsf{update}^\sharp}
+\WithSuffix\newcommand\Advance*{\mathsf{advance}^\sharp}
+\WithSuffix\newcommand\eval*{\mathsf{eval}^\sharp}
+\WithSuffix\newcommand\fetch*{\mathsf{fetch}^\sharp}
+\WithSuffix\newcommand\filter*{\mathsf{filter}^\sharp}
+\WithSuffix\newcommand\pushMode*{\mathsf{pushMode}^\sharp}
+\WithSuffix\newcommand\popMode*{\mathsf{popMode}^\sharp}
+\WithSuffix\newcommand\bind*{\mathsf{bind}^\sharp}
+\WithSuffix\newcommand\newEnv*{\mathsf{newEnv}^\sharp}
+\WithSuffix\newcommand\pushCtx*{\mathsf{pushCtx}^\sharp}
+\WithSuffix\newcommand\popCtx*{\mathsf{popCtx}^\sharp}
+\WithSuffix\newcommand\tick*{\mathsf{tick}^\sharp}
+
+\newcommand*{\Abstract}[1]{\alpha_{\dom{#1}}}
+\newcommand*{\Concrete}[1]{\gamma_{\dom{#1}}}
+
+\newcommand*{\widen}{\mathbin{\bigtriangledown}}
+
+% For typesetting macro definitions
+% https://tex.stackexchange.com/a/174818
+% adapted from doc.dtx
+\providecommand\meta[1]{\textlangle{\itshape #1\/}\textrangle}
+% directly taken from ltxdoc.dtx
+\providecommand\marg[1]{%
+  {\ttfamily\char`\{}\meta{#1}{\ttfamily\char`\}}}
+\providecommand\oarg[1]{%
+  {\ttfamily[}\meta{#1}{\ttfamily]}}
+\newcommand*\mac[1]{\texttt{\textbackslash #1}}
+
+\usepackage{tikz}
+\ExplSyntaxOn
+\cs_new:Npn \turn_with:n #1 #2
+  {
+    -- ([turn] #1 \c_colon_str #2 cm)
+  }
+
+\cs_new:Npn \turn_times:n #1 #2 #3
+  {
+    \tl_set:Nn \l_tmpa_tl {(0, 0) -- (0, #2)}
+    \int_step_inline:nn { #3 }
+      {
+        \tl_put_right:Nn \l_tmpa_tl
+          {
+            \turn_with:n { #1 }
+              {
+                \fp_eval:n { #2 + ##1 * #2 }
+              }
+          }
+      }
+    \draw \l_tmpa_tl ;
+  }
+
+\NewDocumentCommand \drawspiral { m m m }
+  {
+    \begin{tikzpicture}
+      \turn_times:n { #1 } { #2 } { #3 }
+    \end{tikzpicture}
+  }
+
+\ExplSyntaxOff
+
+\title{De\TeX{}tive: \TeX\ Mode Analyzer}
+\author{Jaeho Lee}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+  \drawspiral{71}{0.03}{100}
+\end{center}
+
+\tableofcontents
+
+\section{Introduction}
+There has been---and is---a constant effort to ``modernize'' \TeX\ and its extension \LaTeX.
+Undisciplined users often fall into a rabbit hole of cryptic errors, due to the very fact that it is a turing-complete macro-expansion language that makes it super flexible and extensible.
+The following is a non-exhaustive list of some widely used static linters and/or analyzers around the language:
+\begin{itemize}
+\item \href{https://github.com/latex-lsp/texlab}{TexLab}: basic LSP features like \verb/textDocument.definition/;
+\item \href{https://www.nongnu.org/chktex/}{Chk\TeX}: linter;
+\item \href{https://app.uio.no/ifi/texcount/}{\TeX{}count}: count words and numbers.
+\end{itemize}
+However, these tools resort to ad hoc heuristics and pattern matching; we can do more:
+\begin{enumerate}
+\item mode detection,
+\item typing, and
+\item document analysis, e.g., pre-detecting overflows, sound prediction of page numbers.
+\end{enumerate}
+
+This document describes De\TeX{}tive, a mode analyzer on (plain) \TeX\ documents, based on abstract interpretation\cite{itsa}.
+It collects modes in a label-wise manner so that a \TeX{}nician can identify which part of his/her document is in which mode.
+It futher addresses possible mode errors in a faulty \TeX\ document.
+
+\subsection{Modes in \TeX}
+But wait, what is a \emph{mode}?
+There are six different modes in \TeX\cite{texbook}:
+\begin{enumerate}
+\item vertical mode (the main vertical list of the pages),
+\item internal vertical mode (a vertical list for a vbox),
+\item horizontal mode (a horizontal list for a paragraph),
+\item restricted horizontal mode (a horizontal list for an hbox),
+\item math mode (in a horizontal list),
+\item display math mode (interrupts the current paragraph).
+\end{enumerate}
+\TeX\ works in terms of boxes and glues to compose a document, and it does so by digesting tokens in a sophisticated manner.
+In the process, \TeX\ is always in one of the aforementioned six modes.
+
+It is always the vertical mode when \TeX\ begins processing the tokens.
+Then it enters the horizontal mode to construct a paragraph, and exits back to the vertical mode when the paragraph ends.
+In a simple document without equations and nested structures, this is pretty much how \TeX\ works---but other modes are visited when typesetting complex documents.
+One should consult the \TeX{}book\cite{texbook} for the authoritative guide, especially the chapters 24, 25, and 26.
+
+Unfortunately, the modes are implicit in a document, and a careless typesetter easily get overwhelmed by errors like
+\begin{verbatim}
+You can't use `macro parameter character #' in restricted horizontal mode.
+\end{verbatim}
+This often leads to an unexpected result and might even prevent a document from being generated: \verb/! Emergency stop./
+To make matters worse, \TeX\ tries to fix these errors, and online editors like \textsf{Overleaf} defaults to accepting these implicit fixes.
+
+De\TeX{}tive aims to lift this burden from a typsetter by statically analyzing modes of each part of a document.
+It is defined over a small core of \TeX\ called \tex, described below.
+
+\subsection{Our Target Language \tex}
+\subsubsection{Some Restrictions}
+\tex\ has three modes: horizontal, vertical, and math (unlike its brother \TeX, which have six modes).
+Moreover, \tex\ assumes its target \TeX\ code have its control sequences\footnote{We use the jargon \emph{control sequence} and \emph{macro} interchangeably.} wrapped with \verb/\expandafter/'s, e.g., \verb/\expandafter\somecs\expandafter/.
+This restriction is to make control sequence expansions behave like a function call, which is necessary to write non-tail recursive calls that remember arguments in \TeX.
+
+We do not allow nested macro defintions as well, and all control sequences accept zero or one arguments.
+
+To give a taste of what \tex\ can express, some structures are listed in the following subsections.
+
+\subsubsection{Conditional}
+\tex\ can express conditionals in \TeX:
+\def\condtest#1{%
+  #1 is %
+  \ifnum#1>0 positive%
+  \else
+    \ifnum#1<0 negative%
+    \else zero%
+    \fi
+  \fi%
+}
+\begin{verbatim}
+\def\condtest#1{%
+  #1 is %
+  \ifnum#1>0 positive%
+  \else\ifnum#1<0 negative%
+    \else zero%
+    \fi
+  \fi%
+}
+\end{verbatim}
+``\verb/\condtest{42}, \condtest{-3}, and \condtest0./'' yields
+\condtest{42}, \condtest{-3}, and \condtest0.
+
+More importantly, we have \verb/\ifvmode/, \verb/\ifhmode/, and \verb/\ifmmode/ to check a mode.
+        \def\ignore#1{} \ignore{\fi\fi\fi\fi}
+
+\subsubsection{Loop}
+\tex\ can also express loops in \TeX:
+\begin{verbatim}
+\newcount\n
+\def\johnny#1{%
+  \n=0
+  \loop\ifnum\n<#1
+    \advance\n by1
+    \noindent\number\n. \johnnytxt\endgraf%
+  \repeat%
+}
+\def\johnnytxt{\texttt{All work and no play makes Jack a dull boy}}
+\johnny{9}
+\end{verbatim}
+\newcount\n
+\def\johnny#1{%
+  \n=0
+  \loop\ifnum\n<#1
+    \advance\n by1
+    \noindent\number\n. \johnnytxt\endgraf%
+  \repeat%
+}
+\def\johnnytxt{\texttt{All work and no play makes Jack a dull boy}}
+\johnny{9}\vskip\baselineskip
+
+Note that \verb/\loop/ is defined tail-recursively as follows:
+\begin{verbatim}
+\def\loop#1\repeat{\def\body{#1}\iterate}
+\def\iterate{\body\let\Next=\iterate\else\let\Next=\relax\fi\Next}
+\end{verbatim}
+\tex\ includes \verb/loop/ as a ``primitive.''
+
+\subsubsection{Control Sequences}
+\TeX\ can behave as if it ``remember''s macro arguments, so for the sake of our semantics.
+\begin{verbatim}
+\def\dec#1{%
+  \ifnum#1=0
+    .%
+  \else
+    #1%
+    \expandafter\dec\expandafter{\number\numexpr#1-1\relax}%
+    #1%
+  \fi%
+}%
+\dec{5}
+\end{verbatim}
+\def\dec#1{%
+  \ifnum#1=0
+    .%
+  \else
+    #1%
+    \expandafter\dec\expandafter{\number\numexpr#1-1\relax}%
+    #1%
+  \fi%
+}%
+\dec{10}
+
+Moreover, control sequence names be stored:
+\begin{verbatim}
+\def\call#1{#1}
+\expandafter\call\expandafter\dec{10}
+\end{verbatim}
+\def\call#1{#1}
+\expandafter\call\expandafter\dec{10}
+
+The ``environment'' that only carries an (optional) argument, and all other variables are global.
+\begin{verbatim}
+\newcount\n \newcount\x
+\def\sumup#1{%
+  \x=#1
+  \ifnum\x=0
+    \n=0
+  \else
+    \advance\x by-1
+    \expandafter\sumup\expandafter\x
+    \advance\x by1
+    \advance\n by\x
+    \number\n\ 
+  \fi%
+}
+\sumup{100}
+\end{verbatim}%
+\newcount\n \newcount\x
+\def\sumup#1{%
+  \x=#1
+  \ifnum\x=0
+    \n=0
+  \else
+    \advance\x by-1
+    \expandafter\sumup\expandafter\x
+    \advance\x by1
+    \advance\n by\x
+    \number\n\ 
+  \fi%
+}%
+\sumup{100}
+
+\section{Syntax of \tex}
+\begin{bnfgrammar}
+  $C$ : command ::=
+    $l^+$ : letter + $\upalpha$ (11 (\texttt{[a-zA-Z]}), 12)
+  | $\hat\_$ : super/subscript (7 (\texttt{\^{}}), 8 (\texttt{\_}))
+
+  | num $E$ : typeset number
+  | $x$ += $E$ : numeric addition
+  | $x$ = $E$ : assignment
+
+  | hbox $C$ || vbox $C$ : box (must end with \texttt{unbox})
+  | math $C$ : math (must end with \texttt{unbox})
+  | unbox : unnest a box
+  | hvswitch : $\rightarrow\downarrow$ (\mac{par}, \mac{vskip}, \mac{hrule}, \mac{vfil}, etc.)
+  | vhswitch : $\downarrow\rightarrow$ (\mac{(no)indent}, \mac{vrule}, etc.)
+
+  | $c$ $E?$ : control sequence application
+  | ret$_c$ : return (tagged with a corresponding $c$)
+
+  | if $P$ $C$ $(\texttt{else }C)?$ : \mac{ifhmode}, \mac{ifvmode}, \mac{ifmmode}, \mac{ifnum}
+  | loop $P$ $C$ : loop
+  | $C$ $C$ : sequence
+;;
+  $E$ : expression ::=
+    $x$ : variable
+  | $n$ : integer
+  | $E \oplus E$ : arithmetic (${\oplus} \in \{+, \times\}$)
+  | $c$ : control sequence name
+;;
+  $F$ : control seq def ::=
+    def $c$ $W?$ $C$ : \mac{def\textbackslash$c$}
+;;
+  $P$ : predicate ::=
+    $\mode{h}$ || $\mode{v}$ || $\mode{m}$ : mode check
+  | $E \bowtie E$ : comparision (${\bowtie} \in \{=, <, >\}$)
+;;
+  $D$ : document ::=
+    $F^*\ C$ : a list of defs followed by a command
+\end{bnfgrammar}
+Note that $?$, ${}^+$, and ${}^*$ are taken from regular expression denotations, i.e., $E?$ and $(\texttt{else }\dots)?$ is optional, $l^+$ is one or more letters, and $F^*$ is zero or more $F$'s.
+Numbers like 11, 12, 7, 8 refer to the category codes of tokens in \TeX\ and are written for reference.
+It is an error to use letters with category codes 7 and 8 in a non-math environment.
+
+$l^+$ implicitly changes a mode to horizontal when in a vertical mode, and keeps the mode in a math mode.
+$\texttt{num }E$ is used to ``typeset'' an expression $E$ to a document; In the mode's perspective, it implicitly makes a transition to a horizontal mode when in a vertical mode, just like $l^+$.
+
+Box commands like \verb/hbox/, \verb/vbox/, and \verb/math/ nests ``modes'' and must end with \verb/unbox/, analogous to a control sequence definition ending with a \verb/ret/.
+Explicitly issuing \verb/hvswitch/ or \verb/vhswitch/ should change a mode without nesting.
+
+A variable can store a number or a control sequence name---in \TeX's world, the first is a counter and the latter is a simple macro assignment via \verb/\def\newx{\oldx}/.
+
+A document consists of a list of control sequence defintions followed by a command.
+
+Finally, we assume that target programs to be ``type''-correct, i.e., they do not contain commands like \verb/x += csname/ yet may contain mode-erratic commands like \verb/hbox ^/.
+
+\section{Semantics of \tex}
+The concrete and abstract semantics are defined \`a la section \textsf{8.2 For a Language with Functions and Recursive Calls} of \cite{itsa}.
+\subsection{Concrete Transitional Semantics}
+\subsubsection{Concrete Semantic Domains}
+\begin{equation*}
+\begin{tblr}{rcccll}
+  \state* & \in & \dom{S} & = & \SetCell[c=2]{l} \dom{L} \times \dom{D} \times \dom{T} \times \dom{M} \times \dom{E} \times \dom{K} \times \dom{I} \times \dom{F}\\
+
+  d & \in & \dom{D} & = & \{\mode{h}, \mode{v}, \mode{m}\} & \text{modes}\\
+  t & \in & \dom{T} & = & \dom{D}^* & \text{nested modes}\\
+
+  v & \in & \dom{V} & = & \dom{Z} \cup \dom{C} & \text{values}\\
+  m & \in & \dom{M} & = & \dom{X} \times \dom{I} \to \dom{V} & \text{memories}\\
+  \sigma & \in & \dom{E} & = & \dom{X} \rightarrow \dom{I} & \text{environments} \\
+  \kappa & \in & \dom{K} & = & (\dom{L} \times \dom{E})^* & \text{continuations} \\
+  \phi & \in & \dom{I} & & & \text{instances}\\
+  f & \in & \dom{F} & = & \{\checkmark\} \cup \dom{L} \times \dom{D} \times \dom{D} & \text{implicit fix}\\
+
+  x & \in & \dom{X} & = & \dom{A} \cup \dom{G} & \text{variables}\\
+  \ell & \in & \dom{L} & & & \text{labels} \\
+  c & \in & \dom{C} & & & \text{control sequence names}\\
+  a_c & \in & \dom{A} & = & \{\bullet\} \cup \dom{C} & \text{control sequence arguments}\\
+  &&\dom{G} &&&\text{global variables}\\
+\end{tblr}
+\end{equation*}
+In the above, we used a notation $S^* = \bigcup_{i \ge 0}S^i$ to represent stacks.
+
+There are three elements in modes $\dom{D} = \{\mode{h}, \mode{v}, \mode{m}\}$.
+\TeX\ makes implicit fixes, and we capture it in \tex\ via $f = (\ell, d, d') \in \dom{F}$, which means ``at $l$, it is expected to be $d'$ but was $d$;''
+$f = \checkmark$ means there are no errors (yet).
+
+Environments are from variables to values, but only global variables and function arguments are present.
+When $\phi_I$ is the initial instance, $\sigma(x) = \phi_I$ if $x \in \mathbb{G}$.
+Note that $\dom A = \{\bullet\} \cup \dom C$---this means that there is only one argument for a control sequence ($\dom C$) or none ($\bullet$).
+
+The initial state should be $I = \{\state{\ell_0}{\mode{v}}{\emptyset_{\dom T}}{\emptyset_{\dom M}}{\emptyset_{\dom E}}{\emptyset_{\dom K}}{\phi_0}{\checkmark}\}$
+
+\subsubsection{Concrete Transition}
+To syntactically analyze the deterministic portion of the control flow, we define the $\ell$-labeled version of the syntax:
+\begin{bnfgrammar}
+  $\ell C$ ::=
+    $\ell\colon l^+$
+  || $\ell\colon \hat\_$
+
+  | $\ell\colon$num $E$
+  || $\ell\colon x$ += $E$
+  || $\ell\colon x$ = $E$
+
+  | $\ell\colon$hbox $\ell C$ || $\ell\colon$ vbox $\ell C$
+  || $\ell\colon$math $\ell C$
+  || $\ell\colon$unbox
+  | $\ell\colon$hvswitch
+  || $\ell\colon$vhswitch
+
+  | $\ell\colon c$ $E?$
+  || $\ell\colon$ret$_c$
+
+  | $\ell\colon$if $P$ $\ell C$ $(\texttt{else }\ell C)?$
+  || $\ell\colon$loop $P$ $\ell C$
+  || $\ell\colon \ell C$ $\ell C$
+;;
+  $\ell F$ ::=
+    def $c$ $E?$ $\ell C$
+;;
+  $\ell D$ ::=
+    $\ell F^*\ \ell C\ \ell_{\textrm{end}}$
+\end{bnfgrammar}
+
+We now collect the function graphs of $\Next$, $\NextTrue$, and $\NextFalse$ by evaluating $\llangle \ell D, \ell_{\textrm{end}} \rrangle$ via the following $\llangle \ell C, \ell' \rrangle$ where $\ell = \Label(\ell C)$:\par
+\noindent$\llangle \ell C, \ell' \rrangle =$ case $\ell C$ of $\ell\colon$
+\begin{itemize}
+\item $l^+$ : $\{\Next(\ell) = \ell'\}$
+\item $\hat\_$ : $\{\Next(\ell) = \ell'\}$
+
+\item \texttt{num $E$} : $\{\Next(\ell) = \ell'\}$
+\item \texttt{$ x$ += $E$} : $\{\Next(\ell) = \ell'\}$
+\item \texttt{$ x$ = $E$} : $\{\Next(\ell) = \ell'\}$
+
+\item \texttt{hbox $\ell C'$} : $\{\Next(\ell) = \Label(\ell C')\} \cup \llangle \ell C', \ell' \rrangle$
+\item \texttt{vbox $\ell C'$} : $\{\Next(\ell) = \Label(\ell C')\} \cup \llangle \ell C', \ell' \rrangle$
+\item \texttt{math $\ell C'$} : $\{\Next(\ell) = \Label(\ell C')\} \cup \llangle \ell C', \ell' \rrangle$
+\item \texttt{unbox} : $\{\Next(\ell) = \ell'\}$
+
+\item \texttt{hvswitch} : $\{\Next(\ell) = \ell'\}$
+\item \texttt{vhswitch} : $\{\Next(\ell) = \ell'\}$
+
+\item \texttt{$ c$ $E?$} : $\{\Next(\ell) = \ell'\}$
+\item \texttt{ret$_c$} : $\{\}$\quad(to be determined at run-time)
+
+\item \texttt{if $P$ $\ell C_1$ $(\texttt{else }\ell C_2)?$} : $\{\NextTrue(\ell) = \Label(\ell C_1), (\NextFalse(\ell) = \Label(\ell C_2))?\} \cup \llangle \ell C_1, \ell' \rrangle \cup (\llangle \ell C_2, \ell' \rrangle)?$ \quad($(\dots)?$ parts are omitted if the \verb/else/ clause is not present)
+\item \texttt{loop $P$ $\ell C'$} : $\{\NextTrue(\ell) = \Label(\ell C'), \NextFalse(\ell) = \ell'\} \cup \llangle lC', \ell \rrangle$
+\item \texttt{$ \ell C_1$ $\ell C_2$} : $\{\Next(\ell) = \Label(\ell C_1)\} \cup \llangle \ell C_1, \Label(\ell C_2) \rrangle \cup \llangle \ell C_2, \ell' \rrangle$
+\end{itemize}
+Note that $\ell F$ itself is not $\ell$-labeled, thus $\llangle \ell D, \ell_{\textrm{end}} \rrangle = \llangle \ell C, \ell_{\textrm{end}}$ where $\ell D = \ell F^*\ \ell C\ \ell_{\textrm{end}}$.
+
+Now the state transition relation $\state* \tarrow {\state{\ell'}{d'}{t'}{m'}{\sigma'}{\kappa'}{\phi'}{f'}}$ can be defined as follows:\par
+\noindent If $f = \checkmark$, collect $\tarrow$ for each case $\ell C$ of $\ell\colon$
+\begin{itemize}
+\item $l^+$ : $\state* \tarrow \state{\Next(\ell)}{\weakhsw(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+\item $\hat\_$ : $\state* \tarrow \state{\Next(\ell)}{\mode{m}}{t}{m}{\sigma}{\kappa}{\phi}{\fix{\ell}{d}{\mode{m}}}$
+
+\item \texttt{num $E$} : $\state* \tarrow \state{\Next(\ell)}{\weakhsw(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+\item \texttt{$ x$ += $E$} : $\state* \tarrow \state{\Next(\ell)}{d}{t}{\Advance_x(m, \eval_E(m, \sigma), \sigma)}{\sigma}{\kappa}{\phi}{f}$
+\item \texttt{$ x$ = $E$} : $\state* \tarrow \state{\Next(\ell)}{d}{t}{\update_x(m, \eval_E(m, \sigma), \sigma)}{\sigma}{\kappa}{\phi}{f}$
+
+\item \texttt{hbox $\ell C'$} : $\state* \tarrow \state{\Next(\ell)}{\mode{h}}{\pushMode(t, \mode{h})}{m}{\sigma}{\kappa}{\phi}{f}$
+\item \texttt{vbox $\ell C'$} : $\state* \tarrow \state{\Next(\ell)}{\mode{v}}{\pushMode(t, \mode{v})}{m}{\sigma}{\kappa}{\phi}{f}$
+\item \texttt{math $\ell C'$} : $\state* \tarrow \state{\Next(\ell)}{\mode{m}}{\pushMode(t, \mode{m})}{m}{\sigma}{\kappa}{\phi}{f}$
+\item \texttt{unbox} : $\state* \tarrow \state{\Next(\ell)}{d'}{t'}{m}{\sigma}{\kappa}{\phi}{f}$ where $\langle d', t' \rangle = \popMode(t)$
+
+\item \texttt{hvswitch} : $\state* \tarrow \state{\Next(\ell)}{\mode{v}}{t}{m}{\sigma}{\kappa}{\phi}{\fix{\ell}{d}{\mode{h}}}$
+\item \texttt{vhswitch} : $\state* \tarrow \state{\Next(\ell)}{\mode{h}}{t}{m}{\sigma}{\kappa}{\phi}{\fix{\ell}{d}{\mode{v}}}$
+
+\item \texttt{$c$ $E?$} : $\state* \tarrow \state{\body(c)}{d}{t}{\bind_{a?}(m, \phi', v)}{\newEnv_{a?}(\sigma, \phi')}{\pushCtx(\kappa, \Next(\ell), \sigma)}{\phi'}{f'}$ where $a? = \Arg(c)$, $v = \eval_{E?}(m, \sigma)$, and $\phi' = \tick(\phi)$.
+\item \texttt{ret$_c$} : $\state* \tarrow \state{\ell'}{d}{t}{m}{\sigma'}{\kappa'}{\phi'}{f}$ where $\langle \ell', \sigma', \kappa' \rangle = \popCtx(\kappa)$
+
+\item \texttt{if $P$ $\ell C_1$ $(\texttt{else }\ell C_2)?$}, when $P$ is a numeric comparison $E_1 \bowtie E_2$,
+  \begin{itemize}
+  \item $\state* \tarrow \state{\NextTrue(\ell)}{d}{t}{\filter_{E_1 \bowtie E_2}(m, \sigma)}{\sigma}{\kappa}{\phi}{f}$
+  \item $\state* \tarrow \state{\NextFalse(\ell)}{d}{t}{\filter_{\neg (E_1 \bowtie E_2)}(m, \sigma)}{\sigma}{\kappa}{\phi}{f}$
+  \end{itemize}
+  otherwise if $P$ is a mode check $d'$,
+  \begin{itemize}
+  \item $\state* \tarrow \state{\NextTrue(\ell)}{\filter_{d'}(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+  \item $\state* \tarrow \state{\NextFalse(\ell)}{\filter_{\neg d'}(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+  \end{itemize}
+\item \texttt{loop $P$ $\ell C'$}, when $P$ is a numeric comparison $E_1 \bowtie E_2$,
+  \begin{itemize}
+  \item $\state* \tarrow \state{\NextTrue(\ell)}{d}{t}{\filter_{E_1 \bowtie E_2}(m, \sigma)}{\sigma}{\kappa}{\phi}{f}$
+  \item $\state* \tarrow \state{\NextFalse(\ell)}{d}{t}{\filter_{\neg (E_1 \bowtie E_2)}(m, \sigma)}{\sigma}{\kappa}{\phi}{f}$
+  \end{itemize}
+  otherwise if $P$ is a mode check $d'$,
+  \begin{itemize}
+  \item $\state* \tarrow \state{\NextTrue(\ell)}{\filter_{d'}(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+  \item $\state* \tarrow \state{\NextFalse(\ell)}{\filter_{\neg d'}(d)}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+  \end{itemize}
+\item \texttt{$ \ell C_1$ $\ell C_2$} : $\state* \tarrow \state{\Next(\ell)}{d}{t}{m}{\sigma}{\kappa}{\phi}{f}$
+\end{itemize}
+Otherwise, if $f \ne \checkmark$, abort.
+
+Semantic operators used above are defined as
+\begin{itemize}
+\item $\weakhsw \colon \dom D \to \dom D$,
+\item $\mathsf{fix} \colon \dom L \times \dom D \times \dom D \to \{\checkmark\} \cup \dom L \times \dom D \times \dom D$,
+\item $\pushMode \colon \dom T \times \dom D \to \dom T$,
+\item $\popMode \colon \dom T \to \dom D \times \dom T$,
+\item $\Advance_x \colon \dom M \times \dom Z \times \dom E \to \dom M$,
+\item $\update_x \colon \dom M \times \dom V \times \dom E \to \dom M$,
+\item $\eval_{E?} \colon \dom M \times \dom E \to \dom V$,
+\item $\filter_{\neg? E_1 \bowtie E_2} \colon \dom M \times \dom E \to \dom M$,
+\item $\filter_{\neg? d'} \colon \dom D \to \dom D$,
+\item $\fetch \colon \dom M \times \dom X \times \dom I \to \dom V$,
+\item $\body \colon \dom C \to \dom L$,
+\item $\Arg \colon \dom C \to \dom A$,
+\item $\bind_{a?} \colon \dom M \times \dom I \times \dom V \to \dom M$,
+\item $\newEnv_{a?} \colon \dom E \times \dom I \to \dom E$,
+\item $\pushCtx \colon \dom K \times \dom L \times \dom E \to \dom K$,
+\item $\popCtx \colon \dom K \to \dom L \times \dom E \times \dom K$,
+\item $\tick \colon \dom I \to \dom I$,
+\end{itemize}
+where
+\begin{itemize}
+\item $\weakhsw(d) =
+  \begin{cases}
+    \mode{m} &\text{if $d = \mode{m}$,}\\
+    \mode{h} &\text{otherwise;}
+  \end{cases}$
+\item $\fix{\ell}{d}{d'} =
+  \begin{cases}
+    \checkmark &\text{if $d = d'$,}\\
+    (\ell, d, d') &\text{otherwise;}
+  \end{cases}$
+\item $\pushMode(t, d) = d.t$, i.e., stack $d$ on $t$;
+\item $\popMode(d.t) = \langle d, t \rangle$;
+\item $\Advance_x(m, n, \sigma) = \update_x(m, n + \fetch(m, x, \sigma), \sigma)$;
+\item $\update_x(m, v, \sigma) = \update(m, v, x, \sigma) = m[\langle x, \sigma(x) \rangle \mapsto v]$;
+\item $\eval$ is dispatched into two cases:
+  \begin{itemize}
+  \item $\eval_{\bullet}(m, \sigma) = 0$ is the case when an empty expression is met, which is the case for a control sequence application that takes no arguments\footnote{It is safe to set the value to be zero instead of using a special symbol, as it is impossible to refer to the argument of a control sequence that takes no arguments and $\bind$ will do nothing.}, otherwise,
+  \item $\eval_E(m, \sigma) = \text{a trivial case-by-case evaluation;}$
+  \end{itemize}
+\item $\filter$ is (overloaded and) defined only in the following cases:
+  \begin{itemize}
+  \item $\filter_{E_1 \bowtie E_2}(m, \sigma) = m \quad\text{if $\eval_{E_1}(m, \sigma) \bowtie \eval_{E_2}(m, \sigma)$ is true,}$
+  \item $\filter_{\neg(E_1 \bowtie E_2)}(m, \sigma) = m \quad\text{if $\eval_{E_1}(m, \sigma) \bowtie \eval_{E_2}(m, \sigma)$ is false,}$
+  \item $\filter_{d'}(d) = d \quad\text{if $d = d'$, and}$
+  \item $\filter_{\neg d'}(d) = d \quad\text{if $d \ne d'$;}$
+  \end{itemize}
+  otherwise, the transition relation does not exist;
+\item $\fetch(m, x, \sigma) = m(x, \sigma)$;
+\item $\body(c) = \text{the label of the body of $c$}$;
+\item $\Arg(c) =
+  \begin{cases}
+    a_c &\text{if $c$ takes an argument,}\\
+    \bullet &\text{if $c$ takes no arguments;}
+  \end{cases}$
+\item $\bind_{a?}(m, \phi, v) =
+  \begin{cases}
+    m &\text{if $a? = \bullet$,}\\
+    m[\langle a, \phi \rangle \mapsto v] &\text{otherwise;}
+  \end{cases}$
+\item $\newEnv_{a?}(\sigma, \phi) =
+  \begin{cases}
+    \sigma &\text{if $a? = \bullet$,}\\
+    \sigma[a \mapsto \phi] &\text{otherwise;}
+  \end{cases}$
+\item $\pushCtx(\kappa, \ell, \sigma) = \langle \ell, \sigma\rangle.\kappa$;
+\item $\popCtx(\langle\ell, \sigma\rangle.\kappa) = \langle \ell, \sigma, \kappa \rangle$; and
+\item $\tick(\phi) = \phi'$ where $\phi'$ is always fresh.
+\end{itemize}
+Note that $\filter$'s are partial functions.
+Technically, $\popMode$ and $\popCtx$ are partial for empty stacks, but such operations do not happen on syntactically correct \tex\ programs.
+
+To clarify the notation $\bullet$, it is used to represent a ``none'' value for optional variables like $a?$.
+
+\subsubsection{Concrete Semantics}
+Now that we have set up concrete semantic domains and a single-step transition relation ${\tarrow} \in \dom S \to \power{\dom S}$, the concrete semantics for a set $I$ of input states is the least fixpoint \[\lfp F\] of monotonic semantic function
+\begin{align*}
+  F &: \power{\dom{S}} \to \power{\dom{S}} \\
+  F &= \lambda X.\ I \cup \Step(X)
+\end{align*}
+where
+\begin{align*}
+  \Step &: \power{\dom{S}} \to \power{\dom{S}} \\
+  \Step &= \power*{\tarrow}.
+\end{align*}
+
+
+\subsection{Abstract Transitional Semantics}
+\subsubsection{Abstract Semantic Domains}
+Let the abstraction of $\dom S$ be a CPO \[\dom*S = \dom L \to \dom*D \times \dom*T \times \dom*M \times \dom*E \times \dom*K \times \dom*I \times \dom*F.\]
+It should be Galois connected: \[(\power{\dom S}, \subseteq) \galois{\Abstract S}{\Concrete S} (\dom*S, \sqsubseteq_{\dom S})\] where each abstract component domain is also a Galois connect CPO:
+\begin{align*}
+  (\power{\dom D}, \subseteq) &\galois{\Abstract D}{\Concrete D} (\dom*D, \sqsubseteq_{\dom D}),\\
+  (\power{\dom T}, \subseteq) &\galois{\Abstract T}{\Concrete T} (\dom*T, \sqsubseteq_{\dom T}),\\
+  (\power{\dom M}, \subseteq) &\galois{\Abstract M}{\Concrete M} (\dom*M, \sqsubseteq_{\dom M}),\\
+  (\power{\dom E}, \subseteq) &\galois{\Abstract E}{\Concrete E} (\dom*E, \sqsubseteq_{\dom E}),\\
+  (\power{\dom K}, \subseteq) &\galois{\Abstract K}{\Concrete K} (\dom*K, \sqsubseteq_{\dom K}),\\
+  (\power{\dom I}, \subseteq) &\galois{\Abstract I}{\Concrete I} (\dom*I, \sqsubseteq_{\dom I}),\\
+  (\power{\dom F}, \subseteq) &\galois{\Abstract F}{\Concrete F} (\dom*F, \sqsubseteq_{\dom F}).
+\end{align*}
+
+We now design the abstract component domains.
+\begin{description}
+\item[Modes:] As there are only three elements in $\dom D = \{\mode{h}, \mode{v}, \mode{m}\}$, we use a powerset domain \[\dom*D = \power{\dom D}.\]
+\item[Nested modes:] Due to recursive nesting of boxes, we keep only the top-most $k_{\dom T}$ modes as in $k$-CFA: \[\dom*T = \bigcup_{0 \le i \le k_{\dom T}} \dom*D{}^i.\]
+  Then abstraction and concretization functions can be defined as follows:
+  \begin{align*}
+    \Abstract T(T) &= \sqcup_{\dom T}\{\text{$T^\sharp$ is a prefix of $t \in T$} \mid \lvert T^\sharp\rvert \le k_{\dom T}\} \\
+    \Concrete T(T^\sharp) &= \{ t \in \dom T \mid \text{$T^\sharp$ is a prefix of $t$ up to $\sqcup_{\dom D}$}\}
+  \end{align*}
+  where $\sqcup_{\dom T}$ is the longest common prefix up to $\sqcup_{\dom D}$.
+  Note that $\sqcup_{\dom D} = \cup$ in the current choice of $\dom*D$.
+
+  This is a Galois connection.
+  We first show $\Abstract T(T) \sqsubseteq_{\dom T} T^\sharp$ implies $T \subseteq \Concrete T(T^\sharp)$.
+  Since
+  \begin{align*}
+    \Abstract T(T) \sqsubseteq_{\dom T} T^\sharp &\Leftrightarrow \sqcup_{\dom T}\{\text{$T'{}^\sharp$ is a prefix of $t \in T$} \mid \lvert T'{}^\sharp\rvert \le k_{\dom T}\}\\
+                                  &\Leftrightarrow \forall T'{}^\sharp.\ T'{}^\sharp \sqsubseteq_{\dom T} T^\sharp\\
+                                  &\Leftrightarrow \forall T'{}^\sharp.\ \text{$T^\sharp$ is a prefix of $T'{}^\sharp$,}
+  \end{align*}
+  for any $t \in T$ we have $T^\sharp$ as a prefix of $t$.
+  Thus $T \subseteq \Concrete T(T^\sharp)$ by definition.
+
+  On the other hand, when for all $t \in T$, $T^\sharp$ is a prefix of $t$ (up to $\sqcup_{\dom D}$), we can choose any prefix $T'{}^\sharp$ of $t$.
+  Then $T^\sharp$ is still a prefix of $T'{}^\sharp$, including $T'{}^\sharp$ with a length less than or equal to $k_{\dom T}$.
+  Therefore we have $\Abstract T(T) \sqsubseteq_{\dom T} T^\sharp$ by definition.
+\item[Memories:] Given that $\dom*V$ is a Galois connected CPO, \[\dom*M = \dom X \times \dom*I \to \dom*V\] is a Galois connected CPO.
+\item[Values:] Thus we provide a Galois connected abstract domain for $\dom V = \dom Z \cup \dom C$ in a kindwise manner:
+  \[ (\power{\dom Z \cup \dom C}, \subseteq) \galois{\Abstract V}{\Concrete V} (\dom*Z \times \dom*C, \sqsubseteq_{\dom V}), \]
+  where we use $\dom*Z$ to be an interval abstraction and $\dom*C = \power{\dom C}$.
+\item[Variables:] We use \[\dom*X = \power{\dom X}.\]
+\item[Environments:] We use \[\dom*E = \dom X \to \dom*I.\]
+\item[Continuations:] Unlike $k$-CFA style abstraction for nested modes, we resort to a context-insensitive analysis for control sequence calls.\footnote{Recursive calls in \TeX\ is not seen often in day-to-day document typesetting, unlike deeply nested boxes.}
+  That is, \[\dom*K = \{\kappa^\sharp\}.\]
+\item[Instances:] Similarly, \[\dom*I = \{\phi^\sharp\}.\]
+\item[Implicit fixes:] First divide $\dom F = \{\checkmark\} \cup \dom L \times \dom D \times \dom D$ into $\dom F' = \{\checkmark\}$ and $\dom F'' = \dom L \times \dom D \times \dom D$.
+  If we have $\power{\dom{F'{}}} \galois{\Abstract{F'}}{\Concrete{F'}} \dom*{F'{}}$ and $\power{\dom{F''}} \galois{\Abstract{F''}}{\Concrete{F''}} \dom*{F''{}}$,
+  we have \[\power{\dom{F'{}} \cup \dom{F''{}}} \galois{\Abstract{F}}{\Concrete{F}} \dom*{F'{}} \times \dom*{F''{}}\]
+  where $\Abstract{F} = \lambda F. \langle \Abstract{F'}(F \cap \dom*{F'{}}), \Abstract{F''}(F \cap \dom*{F''{}}) \rangle$.
+
+  Now it is straightforward: we choose $\dom*{F'{}} = \power{\dom F'}$ and $\dom*{F''{}} = \dom L \to \dom*D \times \dom*D$.
+  Thus we have
+  \[\power{\dom F} \galois{\Abstract{F}}{\Concrete{F}} \{\emptyset, \{\checkmark\}\} \times (\dom L \to \dom*D \times \dom*D).\]
+\end{description}
+
+Note that every domain except $\dom*Z$ is of finite height, and we use a widening operator
+\[
+  [a_0, a_1] \mathbin{▽_{\mathbb{Z}}} [b_0, b_1] = [(a_0\text{ if $a_0 \le b_0$, otherwise }{-}\infty), (a_1\text{ if $a_1 \ge b_1$, otherwise }{+}\infty)]
+\]
+for it.
+
+\subsubsection{Abstract Transition}
+Here is the definition of the abstract transition relation $\absstate* \tarrow* \absstate{\ell'}{D'{}}{T'{}}{M'{}}{\sigma'{}}{\kappa'{}}{\phi'{}}{F'{}}$:\par
+\noindent If $F^\sharp.1 = \{\checkmark\}$ and $D^\sharp \ne \emptyset$, collect $\tarrow*$ for each case $\ell C$ of $\ell\colon$
+\begin{itemize}
+\item $l^+$ : $\absstate* \tarrow* \state{\Next(\ell)}{\weakhsw*(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item $\hat\_$ : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{m}\}}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{\fix*{\ell}{D^\sharp}{\{\mode{m}\}}}$
+
+\item \texttt{num $E$} : $\absstate* \tarrow* \state{\Next(\ell)}{\weakhsw*(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item \texttt{$ x$ += $E$} : $\absstate* \tarrow* \state{\Next(\ell)}{D^\sharp}{T^\sharp}{\Advance*_x(M^\sharp, \eval*_E(M^\sharp, \sigma^\sharp), \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item \texttt{$ x$ = $E$} : $\absstate* \tarrow* \state{\Next(\ell)}{D^\sharp}{T^\sharp}{\update*_x(M^\sharp, \eval*_E(M^\sharp, \sigma^\sharp), \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+
+\item \texttt{hbox $\ell C'$} : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{h}\}}{\pushMode*(T^\sharp, \{\mode{h}\})}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item \texttt{vbox $\ell C'$} : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{v}\}}{\pushMode*(T^\sharp, \{\mode{v}\})}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item \texttt{math $\ell C'$} : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{m}\}}{\pushMode*(T^\sharp, \{\mode{m}\})}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\item \texttt{unbox} : $\absstate* \tarrow* \state{\Next(\ell)}{D'{}^\sharp}{T'{}^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$ where $\langle D'{}^\sharp, T'{}^\sharp \rangle = \popMode*(T^\sharp)$
+
+\item \texttt{hvswitch} : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{v}\}}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{\fix*{\ell}{D^\sharp}{\{\mode{h}\}}}$
+\item \texttt{vhswitch} : $\absstate* \tarrow* \state{\Next(\ell)}{\{\mode{h}\}}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{\fix*{\ell}{D^\sharp}{\{\mode{v}\}}}$
+
+\item \texttt{$c$ $E?$} : $\absstate* \tarrow*$\\$\state{\body(c)}{D^\sharp}{T^\sharp}{\bind*_{a?}(M^\sharp, \phi'{}^\sharp, V^\sharp)}{\newEnv*_{a?}(\sigma^\sharp, \phi'{}^\sharp)}{\pushCtx*(\kappa^\sharp, \Next(\ell), \sigma^\sharp)}{\phi'{}^\sharp}{F'{}^\sharp}$ where $a? = \Arg(c)$, $V^\sharp = \eval*_{E?}(M^\sharp, \sigma^\sharp)$, and $\phi'{}^\sharp = \tick*(\phi^\sharp)$.
+\item \texttt{ret$_c$} : $\absstate* \tarrow* \state{\ell'}{D^\sharp}{T^\sharp}{M^\sharp}{\sigma'{}^\sharp}{\kappa'{}^\sharp}{\phi'{}^\sharp}{F^\sharp}$ where $\langle \ell'{}^\sharp, \sigma'{}^\sharp, \kappa'{}^\sharp \rangle = \popCtx*_c(\kappa^\sharp)$ and $\ell' \in \ell'{}^\sharp$
+
+\item \texttt{if $P$ $\ell C_1$ $(\texttt{else }\ell C_2)?$}, when $P$ is a numeric comparison $E_1 \bowtie E_2$,
+  \begin{itemize}
+  \item $\absstate* \tarrow* \state{\NextTrue(\ell)}{D^\sharp}{T^\sharp}{\filter*_{E_1 \bowtie E_2}(M^\sharp, \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \item $\absstate* \tarrow* \state{\NextFalse(\ell)}{D^\sharp}{T^\sharp}{\filter*_{\neg (E_1 \bowtie E_2)}(M^\sharp, \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \end{itemize}
+  otherwise if $P$ is a mode check $d'$,
+  \begin{itemize}
+  \item $\absstate* \tarrow* \state{\NextTrue(\ell)}{\filter*_{d'}(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \item $\absstate* \tarrow* \state{\NextFalse(\ell)}{\filter*_{\neg d'}(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \end{itemize}
+\item \texttt{loop $P$ $\ell C'$}, when $P$ is a numeric comparison $E_1 \bowtie E_2$,
+  \begin{itemize}
+  \item $\absstate* \tarrow* \state{\NextTrue(\ell)}{D^\sharp}{T^\sharp}{\filter*_{E_1 \bowtie E_2}(M^\sharp, \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \item $\absstate* \tarrow* \state{\NextFalse(\ell)}{D^\sharp}{T^\sharp}{\filter*_{\neg (E_1 \bowtie E_2)}(M^\sharp, \sigma^\sharp)}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \end{itemize}
+  otherwise if $P$ is a mode check $d'$,
+  \begin{itemize}
+  \item $\absstate* \tarrow* \state{\NextTrue(\ell)}{\filter*_{d'}(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \item $\absstate* \tarrow* \state{\NextFalse(\ell)}{\filter*_{\neg d'}(D^\sharp)}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+  \end{itemize}
+\item \texttt{$ \ell C_1$ $\ell C_2$} : $\absstate* \tarrow* \state{\Next(\ell)}{D^\sharp}{T^\sharp}{M^\sharp}{\sigma^\sharp}{\kappa^\sharp}{\phi^\sharp}{F^\sharp}$
+\end{itemize}
+Otherwise, if $F^\sharp.1 = \emptyset$ or $D^\sharp = \emptyset$, abort.
+
+Abstract semantic operators used above are defined as
+\begin{itemize}
+\item $\weakhsw* \colon \dom*D \to \dom*D$,
+\item $\mathsf{fix}^\sharp \colon \dom L \times \dom*D \times \dom*D \to \dom*F$,
+\item $\pushMode* \colon \dom*T \times \dom*D \to \dom*T$,
+\item $\popMode* \colon \dom*T \to \dom*D \times \dom*T$,
+\item $\Advance*_x \colon \dom*M \times \dom*Z \times \dom*E \to \dom*M$,
+\item $\update*_x \colon \dom*M \times \dom*V \times \dom*E \to \dom*M$,
+\item $\eval*_{E?} \colon \dom*M \times \dom*E \to \dom*V$,
+\item $\filter*_{\neg? E_1 \bowtie E_2} \colon \dom*M \times \dom*E \to \dom*M$,
+\item $\filter*_{\neg? d'} \colon \dom*D \to \dom*D$,
+\item $\fetch* \colon \dom*M \times \dom*X \times \dom*I \to \dom*V$,
+\item $\bind*_{a?} \colon \dom*M \times \dom*I \times \dom*V \to \dom*M$,
+\item $\newEnv*_{a?} \colon \dom*E \times \dom*I \to \dom*E$,
+\item $\pushCtx* \colon \dom*K \times \dom L \times \dom*E \to \dom*K$,
+\item $\popCtx*_c \colon \dom*K \to \dom*L \times \dom*E \times \dom*K$,
+\item $\tick* \colon \dom*I \to \dom*I$,
+\end{itemize}
+where
+\begin{itemize}
+\item $\weakhsw*(D^\sharp) = \{\weakhsw(d) \mid d \in D^\sharp\}$,
+\item $\fix*{\ell}{D_1^\sharp}{D_2^\sharp} = \langle H, \langle \ell, D_1'{}^\sharp, D_2'{}^\sharp\rangle\rangle$
+  where \[H =
+  \begin{cases}
+    \{\checkmark\} & \text{if $D_1^\sharp \cap D_2^\sharp \ne \emptyset$} \\
+    \emptyset & \text{otherwise,}
+  \end{cases}\] and \[(D_1'{}^\sharp, D_2'{}^\sharp) =
+  \begin{cases}
+    (\emptyset, \emptyset) & \text{if $D_1^\sharp = \emptyset$ or $D_2^\sharp = \emptyset$,}\\
+    (\emptyset, \emptyset) & \text{if $|D_1^\sharp| = |D_2^\sharp| = 1$ and $D_1^\sharp = D_2^\sharp$,}\\
+    (D_1^\sharp, D_2^\sharp - D_1^\sharp) & \text{if $|D_1^\sharp| = 1$,}\\
+    (D_1^\sharp - D_2^\sharp, D_2^\sharp) & \text{if $|D_2^\sharp| = 1$,}\\
+    (D_1^\sharp, D_2^\sharp) & \text{otherwise;}\\
+  \end{cases}\]
+\item $\pushMode*(T^\sharp, D^\sharp) = \textsf{trunc}_{k_{\dom T}}(D^\sharp.T^\sharp)$ where $\textsf{trunc}_k$ truncates the stack to the topmost $k$ elements if the length is greater than $k$.
+\item $\popMode*(T^\sharp) =
+  \begin{cases}
+    \langle D^\sharp, T'{}^\sharp \rangle & \text{if $\lvert T^\sharp \rvert > 0$,}\\
+    \langle \{\mode h, \mode v, \mode m\}, \top_{\dom*T} \rangle & \text{otherwise;}
+  \end{cases}$
+\item $\Advance*_x(M^\sharp, N^\sharp, \sigma^\sharp) = \update_x(M^\sharp, N^\sharp +^\sharp \fetch*(M^\sharp, \{x\}, \sigma^\sharp), \sigma^\sharp)$;
+\item $\update*_x(M^\sharp, V^\sharp, \sigma^\sharp, X^\sharp) =
+  \begin{cases}
+    M^\sharp[\langle x, \sigma^\sharp(x)\rangle \mapsto V^\sharp] &\text{when $X^\sharp = \{x\}$,}\\
+    \bigsqcup_{x \in X^\sharp} M^\sharp[\langle x, \sigma^\sharp(x) \rangle \mapsto M^\sharp(x, \sigma^\sharp(x)) \sqcup V^\sharp] &\text{otherwise;}
+  \end{cases}$
+
+  (Note that $\update*_x(M^\sharp, V^\sharp, \sigma^\sharp) = \update*(M^\sharp, V^\sharp, \sigma^\sharp, \{x\})$)
+\item $\eval*$ is dispatched into two cases:
+  \begin{itemize}
+  \item $\eval*_{\bullet}(M^\sharp, \sigma^\sharp) = [0, 0]$ when an empty expression is met, otherwise,
+  \item $\eval*_E(M^\sharp, \sigma^\sharp) = \text{a straightforward case-by-case abstract correspondent for $\eval_E(m, \sigma)$;}$
+  \end{itemize}
+\item $\filter*$ is (overloaded and) defined only in the following cases:
+  \begin{itemize}
+  \item $\filter*_{E_1 \bowtie E_2}(M^\sharp, \sigma^\sharp) = \Abstract M(\{m \in \Concrete M(M^\sharp) \mid \exists \sigma \in \Concrete E(\sigma^\sharp).\ \text{$\eval_{E_1}(m, \sigma) \bowtie \eval_{E_2}(m, \sigma)$ is true}\})$,
+  \item $\filter*_{\neg(E_1 \bowtie E_2)}(M^\sharp, \sigma^\sharp) = \Abstract M(\{m \in \Concrete M(M^\sharp) \mid \exists \sigma \in \Concrete E(\sigma^\sharp).\ \text{$\eval_{E_1}(m, \sigma) \bowtie \eval_{E_2}(m, \sigma)$ is false}\})$,
+  \item $\filter*_{d'}(D^\sharp) = D^\sharp \cap \{d'\}$,
+  \item $\filter*_{\neg d'}(D^\sharp) = D^\sharp - \{d'\}$;
+  \end{itemize}
+  otherwise, the transition relation does not exist;
+\item $\fetch*(M^\sharp, X^\sharp, \sigma^\sharp) = \bigsqcup_{x \in X^\sharp} M^\sharp(x, \sigma^\sharp(x))$;
+\item $\bind*_{a?}(M^\sharp, \phi^\sharp, V^\sharp) =
+  \begin{cases}
+    m &\text{if $a? = \bullet$,}\\
+    m[\langle a, \phi^\sharp \rangle \mapsto V^\sharp] &\text{otherwise;}
+  \end{cases}$
+\item $\newEnv*_{a?}(\sigma^\sharp, \phi^\sharp) =
+  \begin{cases}
+    \sigma^\sharp &\text{if $a? = \bullet$,}\\
+    \sigma^\sharp[a \mapsto \phi^\sharp] &\text{otherwise;}
+  \end{cases}$
+\item $\pushCtx*(\kappa^\sharp, \ell, \sigma^\sharp) = \kappa^\sharp$;
+\item $\popCtx*_c(\kappa^\sharp) = \langle \ell^\sharp, \sigma^\sharp, \kappa^\sharp \rangle$ where $\ell^\sharp = \{\ell \mid \state{\ell}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot} \tarrow* \state{\body(c)}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot}{\cdot}\}$ and $\sigma^\sharp = \lambda x. \phi^\sharp$;
+\item $\tick*(\phi^\sharp) = \phi^\sharp$.
+\end{itemize}
+Note again that $\dom*I = \{\phi^\sharp\}$ and $\dom*K = \{\kappa^\sharp\}$ are singleton sets.
+
+\subsubsection{Abstract Semantics}
+We define an abstract semantics as
+\begin{align*}
+  \dom*{S} &= \dom{L} \to \dom*D \times \dom*T \times \dom*M \times \dom*E \times \dom*K \times \dom*I \times \dom*F\\
+  F^\sharp &\colon \dom*{S} \to \dom*{S} \\
+  F^\sharp(X^\sharp) &= \alpha(I) \sqcup \Step^\sharp(X^\sharp) \\
+  \Step^\sharp &= \power{\mathrm{id}, \sqcup_R} \circ \pi \circ \power*{\hookrightarrow^\sharp} \\
+  \hookrightarrow^\sharp &\subseteq \dom*S \times \dom*S\\
+  \pi &\colon \power{\dom*S} \to (\dom L\to \power{\dom*D \times \dom*T \times \dom*M \times \dom*E \times \dom*K \times \dom*I \times \dom*F})\\
+  \pi(X) &= \lambda \ell.\left\{\partstate*\,\middle|\, \absstate* \in X\right\}
+\end{align*}
+where $\sqcup_R$ is an upper bound operator of $\dom*D \times \dom*T \times \dom*M \times \dom*E \times \dom*K \times \dom*I \times \dom*F$.
+
+\section{Analysis}
+Using the abstract semantics presented above, we can consult the label-wise collected modes for a document inspection.
+In case the abstract interpreter meets a state $F^\sharp.1 = \emptyset$, it means that the document is surely in an error state, and a \TeX{}nician should check $F^\sharp.2$ to see the possible first occurrences of implicit fixes.
+On the other hand, if $F^\sharp.2$ is empty, it means that the document is guaranteed to be in a clean state without any implicit fix.
+
+\begin{thebibliography}{9}
+\bibitem{itsa}
+  Xavier Rival and Kwangkeun Yi (2020) \emph{Introduction to Static Analysis}, MIT Press.
+\bibitem{texbook}
+  Donald E. Knuth (1986) \emph{The \TeX{}Book}, Addison-Wesley Professional.
+\end{thebibliography}
+\end{document}
+%%% Local Variables:
+%%% coding: utf-8
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% End:
