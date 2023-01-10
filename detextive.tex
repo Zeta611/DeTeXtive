@@ -226,13 +226,13 @@ However, these tools resort to ad hoc heuristics and pattern matching; we can do
 \item document analysis, e.g., pre-detecting overflows, sound prediction of page numbers.
 \end{enumerate}
 
-This document describes De\TeX{}tive, a mode analyzer on (plain) \TeX\ documents, based on abstract interpretation\cite{itsa}.
+This document describes De\TeX{}tive, a mode analyzer on (plain) \TeX\ documents, based on abstract interpretation~\cite{itsa}.
 It collects modes in a label-wise manner so that a \TeX{}nician can identify which part of his/her document is in which mode.
 It futher addresses possible mode errors in a faulty \TeX\ document.
 
 \subsection{Modes in \TeX}
 But wait, what is a \emph{mode}?
-There are six different modes in \TeX\cite{texbook}:
+There are six different modes in \TeX~\cite{texbook}:
 \begin{enumerate}
 \item vertical mode (the main vertical list of the pages),
 \item internal vertical mode (a vertical list for a vbox),
@@ -247,7 +247,7 @@ In the process, \TeX\ is always in one of the aforementioned six modes.
 It is always the vertical mode when \TeX\ begins processing the tokens.
 Then it enters the horizontal mode to construct a paragraph, and exits back to the vertical mode when the paragraph ends.
 In a simple document without equations and nested structures, this is pretty much how \TeX\ works---but other modes are visited when typesetting complex documents.
-One should consult the \TeX{}book\cite{texbook} for the authoritative guide, especially the chapters 24, 25, and 26.
+One should consult the \TeX{}book~\cite{texbook} for the authoritative guide, especially the chapters 24, 25, and 26.
 
 Unfortunately, the modes are implicit in a document, and a careless typesetter easily get overwhelmed by errors like
 \begin{verbatim}
